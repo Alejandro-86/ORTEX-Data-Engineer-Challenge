@@ -16,7 +16,7 @@ df = pd.read_csv('2017.csv', parse_dates=['inputdate', 'tradedate'],
 
 # Transform data from long to wide format to simplify analysis.
 total_shares_type = df.pivot_table(index='source', columns='transactionType',
-                                   values='shares')
+                                   values='shares',aggfunc='sum')
 
 # Add calculated shares buy and sell ratio column.
 total_shares_type['Buy Sell Ratio'] = (total_shares_type['Sell'].values / 
