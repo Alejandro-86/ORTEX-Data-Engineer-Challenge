@@ -1,25 +1,24 @@
 -- Ortex's Data Engineering Exercise, Part 1
 -- Database: ortex
 
--- DROP DATABASE IF EXISTS ortex;
+DROP DATABASE IF EXISTS ortex;
 
 CREATE DATABASE ortex
     WITH 
-    OWNER = postgres
+    OWNER = alexalonso
     ENCODING = 'UTF8'
-    LC_COLLATE = 'Spanish_Argentina.1252'
-    LC_CTYPE = 'Spanish_Argentina.1252'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
 
 COMMENT ON DATABASE ortex
     IS 'Ortex Data Engineering Exercise';
 
-GRANT ALL ON DATABASE ortex TO postgres;
+GRANT ALL ON DATABASE ortex TO alexalonso;
 
 GRANT ALL ON DATABASE ortex TO PUBLIC;
 
-USE ortex;
+
+-- USE ortex;
 -- Table creation to load csv.
 CREATE TABLE transactions2017
 (
@@ -60,14 +59,38 @@ CREATE TABLE transactions2017
 	exchange VARCHAR ( 200 )
 );
 -- .csv file loading into previously made table
-COPY transactions2017 FROM '/2017.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8' QUOTE '"' ESCAPE '''';
+\copy transactions2017 FROM '2017.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8' QUOTE '"' ESCAPE '''';
 
 -- Query to answer the 1st task.
-SELECT exchange,  COUNT(transactionid) AS total_transactions FROM transactions2017 GROUP BY exchange ORDER BY total_transactions DESC LIMIT 3;
-
+select exchange
+from transactions2017 
+GROUP BY exchange
+order by count(exchange) desc
+limit 3;
 -- Query to answer the 2nd task.
-SELECT companyname, MAX(valueEUR) AS highest_value FROM transactions2017 WHERE EXTRACT(MONTH FROM tradedate) = 08 AND EXTRACT(YEAR FROM tradedate) = 2017 GROUP BY companyname ORDER BY highest_value DESC LIMIT 3; 
-
+with valueEUR as (
+	select companyname, value
+	from transactions2017
+	where currency = 'EUR' and 
+	extract(year from tradedate) = 2017 and
+	extract(month from tradedate) = 8	
+)
+select companyname
+from valueEUR
+GROUP BY companyname
+ORDER BY sum(value) desc
+limit 2;
 -- Query to answer the 3rd task.
-
-SELECT (COUNT(transactionid)::float / SUM(COUNT(transactionid)) OVER() *100) AS transactions_percentage, EXTRACT(MONTH FROM tradedate) AS month FROM transactions2017  WHERE EXTRACT(YEAR FROM tradedate) = 2017 AND tradeSignificance = 3 GROUP BY month;
+with filtered as (
+	select 
+	extract(MONTH from tradedate) as transaction_month,
+	count(tradedate) FILTER (where tradesignificance = 3) as total_per_month_ts3,
+	count(tradedate) as total_per_month
+	from transactions2017
+	where extract(year from tradedate) = 2017
+	GROUP BY transaction_month
+)
+select 
+TO_CHAR(TO_DATE (transaction_month::text, 'MM'), 'Month') AS "Month Name",
+trunc((total_per_month_ts3::NUMERIC/total_per_month::NUMERIC)*100,2) as percentage_ts3_monthly
+from filtered
