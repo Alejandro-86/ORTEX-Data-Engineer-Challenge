@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "ortex-data-engineer-challenge"
+version = "0.1.0"
+description = ""
+authors = ["Alex_alonso_86 <aalonsocanales@gmail.com>"]
+readme = "README.md"
+packages = [{include = "ortex_data_engineer_challenge"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.1.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
