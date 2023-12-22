@@ -9,6 +9,7 @@ packages = [{include = "ortex_data_engineer_challenge"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 pandas = "^2.1.4"
+notebook = "^7.0.6"
 
 
 [build-system]

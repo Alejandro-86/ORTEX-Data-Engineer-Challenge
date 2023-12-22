@@ -94,3 +94,5 @@ select
 TO_CHAR(TO_DATE (transaction_month::text, 'MM'), 'Month') AS "Month Name",
 trunc((total_per_month_ts3::NUMERIC/total_per_month::NUMERIC)*100,2) as percentage_ts3_monthly
 from filtered
+
+select * from transactions2017
